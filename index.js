@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { faker } = require('@faker-js/faker');
 const mysql = require('mysql2');
 const express = require("express");
@@ -43,10 +44,10 @@ let generateNewID = () => faker.string.uuid();
 // MySQL Connection
 // ---------------------------------------------
 const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    database: 'firstdb',
-    password: '1-2-MohdYahiya'
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    database: process.env.DB_NAME || 'firstdb',
+    password: process.env.DB_PASSWORD || '1-2-MohdYahiya'
 });
 
 connection.connect(err => {

@@ -132,8 +132,11 @@
  <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-  function timeAgo(date) {
-    const seconds = Math.floor((Date.now() - Date.parse(date)) / 1000);
+  function timeAgo(raw) {
+    // FIX: convert string to a guaranteed JS-parsable date
+    const date = new Date(raw.replace("Z", "").replace(" ", "T") + "Z");
+
+    const seconds = Math.floor((Date.now() - date) / 1000);
 
     const intervals = {
       year: 31536000,
@@ -156,20 +159,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.querySelectorAll(".timeago").forEach(el => {
     const raw = el.dataset.time;
-    console.log("FINAL RAW:", raw);   // debug
-    console.log("PARSED:", Date.parse(raw)); // debug
     el.innerText = timeAgo(raw);
   });
 
 });
 </script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".timeago").forEach(el => {
-    el.innerText = "TIME SCRIPT RUNNING";
-  });
-});
-</script>
+
 
 
 </body>

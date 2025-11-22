@@ -95,8 +95,10 @@
         </div>
 
         <!-- Time Ago -->
-        <p class="text-xs mt-4 text-right italic tracking-wide 
-               text-gray-500 dark:text-gray-400 timeago" data-time="<%= p.created_at %>"></p>
+        <p class="timeago text-xs mt-4 text-right italic tracking-wide 
+       text-gray-500 dark:text-gray-400"
+   data-time="<%= new Date(p.created_at).toISOString() %>"></p>
+
 
       </div>
       <% }) %>
@@ -125,7 +127,8 @@
   <!-- Time Ago Script -->
   <script>
     function timeAgo(date) {
-      const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+      const seconds = Math.floor((Date.now() - Date.parse(date)) / 1000);
+
 
       const intervals = {
         year: 31536000,

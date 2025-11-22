@@ -97,7 +97,8 @@
         <!-- Time Ago -->
         <p class="timeago text-xs mt-4 text-right italic tracking-wide 
        text-gray-500 dark:text-gray-400"
-   data-time="<%= new Date(p.created_at).toISOString() %>"></p>
+   data-time="<%= p.created_at %>"></p>
+
 
 
       </div>
@@ -126,28 +127,29 @@
 
   <!-- Time Ago Script -->
   <script>
-    function timeAgo(date) {
-      const seconds = Math.floor((Date.now() - Date.parse(date)) / 1000);
+   function timeAgo(date) {
+  const seconds = Math.floor((Date.now() - Date.parse(date)) / 1000);
 
 
-      const intervals = {
-        year: 31536000,
-        month: 2592000,
-        week: 604800,
-        day: 86400,
-        hour: 3600,
-        minute: 60,
-        second: 1
-      };
+  const intervals = {
+    year: 31536000,
+    month: 2592000,
+    week: 604800,
+    day: 86400,
+    hour: 3600,
+    minute: 60,
+    second: 1
+  };
 
-      for (const unit in intervals) {
-        const interval = Math.floor(seconds / intervals[unit]);
-        if (interval >= 1) {
-          return `${interval} ${unit}${interval > 1 ? "s" : ""} ago`;
-        }
-      }
-      return "just now";
+  for (const unit in intervals) {
+    const interval = Math.floor(seconds / intervals[unit]);
+    if (interval >= 1) {
+      return `${interval} ${unit}${interval > 1 ? "s" : ""} ago`;
     }
+  }
+  return "just now";
+}
+
 
     document.querySelectorAll(".timeago").forEach(el => {
       el.innerText = timeAgo(el.dataset.time);

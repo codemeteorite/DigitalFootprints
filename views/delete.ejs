@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tryna Delete Something?</title>
+</head>
+<body>
+     <form method="POST" action="/users/<%= user.id %>?_method=DELETE">
+        <label for="userEmail">Enter your Email Address before we delete your Data</label>
+        <br>
+        <input name="userEmail" />
+            
+       
+        <div></div>
+        <label for="userPassword">Dont forget the password as well</label>
+        <input type="password" name="userPassword" id="">
+        <button type="Submit">
+            Submit
+        </button>
+       
+    </form>
+</body>
+</html>

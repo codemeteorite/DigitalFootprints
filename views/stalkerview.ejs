@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= result[0].username %> — Profile</title>
+    <link rel="stylesheet" href="/stalkerview.css">
+
+    <!-- DARK MODE SETUP -->
+    <script>
+        if (!localStorage.theme) localStorage.theme = "dark";
+        if (localStorage.theme === "dark") {
+            document.documentElement.classList.add("dark");
+        }
+    </script>
+</head>
+
+<body>
+
+    <!-- DARK-MODE TOGGLE -->
+    <button id="themeToggle"
+        style="position: fixed; top: 20px; right: 20px; padding: 12px; font-size: 20px; border-radius: 50%; cursor: pointer;">
+        ☀️
+    </button>
+<a href="/feed"
+   style="
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: #4f46e5;
+      color: white;
+      padding: 10px 16px;
+      font-size: 15px;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+   ">
+   ⬅  Enough Stalking?
+</a>
+    <div class="profile-container">
+
+        <div class="profile-card">
+            <div>
+                <h3>(No photo uploaded)</h3>
+            </div>
+
+            <div style="text-align: left;">
+                <h2 class="username">@<%= result[0].username %></h2>
+                <p class="email"><%= result[0].email %></p>
+
+                <% if (result[0].dream) { %>
+                    <p class="dream">My Dream: <%= result[0].dream %></p>
+                <% } else { %>
+                    <p class="dream empty">No dream added yet.</p>
+                <% } %>
+
+                <p class="joined">Joined: <%= result[0].created_at.toDateString() %></p>
+            </div>
+        </div>
+
+        <div class="posts-section">
+            <h3 class="posts-title" style="color: pink;">Their Digital Fossils</h3>
+
+            <% const hasPosts = result.some(r => r.post); %>
+
+            <% if (!hasPosts) { %>
+                <p>No posts yet.</p>
+            <% } else { %>
+
+                <% result.forEach(p => { if (p.post) { %>
+                    <div class="post-card">
+                        <p class="post-content"><%= p.post %></p>
+                        <p class="post-date"><%= p.post_time.toLocaleString() %></p>
+                    </div>
+                <% }}); %>
+
+            <% } %>
+        </div>
+
+    </div>
+
+    <!-- Toggle Script -->
+    <script>
+        const toggle = document.getElementById("themeToggle");
+
+        function updateIcon() {
+            toggle.textContent =
+                document.documentElement.classList.contains("dark") ? "☀️" : "🌙";
+        }
+
+        toggle.addEventListener("click", () => {
+            document.documentElement.classList.toggle("dark");
+            localStorage.theme =
+                document.documentElement.classList.contains("dark") ? "dark" : "light";
+            updateIcon();
+        });
+
+        updateIcon();
+    </script>
+
+</body>
+
+</html>

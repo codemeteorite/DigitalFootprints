@@ -2,102 +2,142 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= result[0].username %> — Profile</title>
-    <link rel="stylesheet" href="/stalkerview.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= result[0].username %> — Profile</title>
 
-    <!-- DARK MODE SETUP -->
-    <script>
-        if (!localStorage.theme) localStorage.theme = "dark";
-        if (localStorage.theme === "dark") {
-            document.documentElement.classList.add("dark");
-        }
-    </script>
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Tailwind Dark Mode Config -->
+  <script>
+    tailwind.config = { darkMode: "class" };
+  </script>
+
+  <!-- Default theme = Dark -->
+  <script>
+    if (!localStorage.theme) localStorage.theme = "dark";
+    if (localStorage.theme === "dark") {
+      document.documentElement.classList.add("dark");
+    }
+  </script>
 </head>
 
-<body>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen p-4">
 
-    <!-- DARK-MODE TOGGLE -->
-    <button id="themeToggle"
-        style="position: fixed; top: 20px; right: 20px; padding: 12px; font-size: 20px; border-radius: 50%; cursor: pointer;">
-        ☀️
-    </button>
-<a href="/feed"
-   style="
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background: #4f46e5;
-      color: white;
-      padding: 10px 16px;
-      font-size: 15px;
-      border-radius: 8px;
-      text-decoration: none;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-   ">
-   ⬅  Enough Stalking?
-</a>
-    <div class="profile-container">
+  <!-- THEME BUTTON -->
+  <button id="themeToggle"
+    class="fixed top-4 right-4 z-50 p-3 rounded-full bg-white dark:bg-gray-800 shadow text-xl hover:scale-110 transition">
+    ☀️
+  </button>
 
-        <div class="profile-card">
-            <div>
-                <h3>(No photo uploaded)</h3>
-            </div>
+  <!-- BACK BUTTON -->
+  <a href="/feed"
+    class="fixed top-4 left-4 z-50 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition">
+    ⬅ Enough Stalking?
+  </a>
 
-            <div style="text-align: left;">
-                <h2 class="username">@<%= result[0].username %></h2>
-                <p class="email"><%= result[0].email %></p>
+  <!-- MAIN WRAPPER -->
+  <div class="max-w-7xl mx-auto pt-20">
 
-                <% if (result[0].dream) { %>
-                    <p class="dream">My Dream: <%= result[0].dream %></p>
-                <% } else { %>
-                    <p class="dream empty">No dream added yet.</p>
-                <% } %>
+    <div class="bg-gray-200 dark:bg-gray-800 shadow-xl rounded-2xl p-6 flex flex-col lg:flex-row gap-10">
 
-                <p class="joined">Joined: <%= result[0].created_at.toDateString() %></p>
-            </div>
-        </div>
+      <!-- LEFT BIG PHOTO (FREE SIZE) -->
+      <div class="w-full lg:w-[40%] flex justify-center">
+        <% if (result[0].profile_photo_url) { %>
+          <img
+            src="<%= result[0].profile_photo_url %>"
+            class="w-full max-h-80 object-contain rounded-xl shadow-md"
+          />
+        <% } else { %>
+          <div
+            class="w-full h-96 bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 rounded-xl">
+            No Photo Uploaded
+          </div>
+        <% } %>
+      </div>
 
-        <div class="posts-section">
-            <h3 class="posts-title" style="color: pink;">Their Digital Fossils</h3>
+      <!-- RIGHT INFO -->
+      <div class="w-full lg:w-[60%] space-y-4">
+        <h2 class="text-4xl font-bold">@<%= result[0].username %></h2>
 
-            <% const hasPosts = result.some(r => r.post); %>
+        <p class="text-gray-700 dark:text-gray-300 text-lg"><%= result[0].email %></p>
 
-            <% if (!hasPosts) { %>
-                <p>No posts yet.</p>
-            <% } else { %>
+        <% if (result[0].dream) { %>
+          <p class="text-lg">
+            <span class="font-bold">Dream:</span>
+            <span class="font-semibold"><%= result[0].dream %></span>
+          </p>
+        <% } else { %>
+          <p class="text-lg text-gray-400 italic">No dream added yet.</p>
+        <% } %>
 
-                <% result.forEach(p => { if (p.post) { %>
-                    <div class="post-card">
-                        <p class="post-content"><%= p.post %></p>
-                        <p class="post-date"><%= p.post_time.toLocaleString() %></p>
-                    </div>
-                <% }}); %>
-
-            <% } %>
-        </div>
+        <p class="opacity-70">
+          Joined:
+          <% if (result[0].created_at instanceof Date) { %>
+            <%= result[0].created_at.toDateString() %>
+          <% } else { %>
+            <%= new Date(result[0].created_at).toDateString() %>
+          <% } %>
+        </p>
+      </div>
 
     </div>
 
-    <!-- Toggle Script -->
-    <script>
-        const toggle = document.getElementById("themeToggle");
+    <!-- POSTS SECTION -->
+    <h3 class="text-2xl font-bold text-pink-400 mt-10 mb-4">Their Digital Fossils</h3>
 
-        function updateIcon() {
-            toggle.textContent =
-                document.documentElement.classList.contains("dark") ? "☀️" : "🌙";
-        }
+    <div class="space-y-4">
 
-        toggle.addEventListener("click", () => {
-            document.documentElement.classList.toggle("dark");
-            localStorage.theme =
-                document.documentElement.classList.contains("dark") ? "dark" : "light";
-            updateIcon();
-        });
+      <% const hasPosts = result.some(r => r.post); %>
 
-        updateIcon();
-    </script>
+      <% if (!hasPosts) { %>
+
+        <div class="bg-gray-200 dark:bg-gray-800 p-6 rounded-xl text-center text-gray-600 dark:text-gray-300">
+          No posts yet.
+        </div>
+
+      <% } else { %>
+
+        <% result.forEach(p => { if (p.post) { %>
+
+          <div class="bg-gray-200 dark:bg-gray-800 p-5 rounded-xl shadow">
+            <p class="text-lg mb-2"><%= p.post %></p>
+
+            <p class="text-sm opacity-70">
+              <% if (p.post_time instanceof Date) { %>
+                <%= p.post_time.toLocaleString() %>
+              <% } else { %>
+                <%= new Date(p.post_time).toLocaleString() %>
+              <% } %>
+            </p>
+          </div>
+
+        <% } }); %>
+
+      <% } %>
+
+    </div>
+
+  </div>
+
+  <!-- DARK MODE SCRIPT -->
+  <script>
+    const toggle = document.getElementById("themeToggle");
+
+    function updateIcon() {
+      toggle.textContent =
+        document.documentElement.classList.contains("dark") ? "☀️" : "🌙";
+    }
+
+    toggle.addEventListener("click", () => {
+      const isDark = document.documentElement.classList.toggle("dark");
+      localStorage.theme = isDark ? "dark" : "light";
+      updateIcon();
+    });
+
+    updateIcon();
+  </script>
 
 </body>
 

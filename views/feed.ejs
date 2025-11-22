@@ -25,8 +25,7 @@
               flex justify-between items-center sticky top-0 z-40">
 
     <!-- Logout -->
-    <a href="/logout"
-      class="text-red-500 font-semibold text-lg hover:text-red-400 hover:underline transition">
+    <a href="/logout" class="text-red-500 font-semibold text-lg hover:text-red-400 hover:underline transition">
       Logout
     </a>
 
@@ -36,21 +35,18 @@
     </h1>
 
     <!-- Dark Mode Toggle -->
-    <button id="themeToggle"
-      class="text-2xl bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white 
+    <button id="themeToggle" class="text-2xl bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white 
              p-2 rounded-full shadow hover:scale-110 transition">
       🌙
     </button>
   </nav>
 
-  <!-- Floating My Profile Button (fixed, not inside navbar) -->
-  <a href="/profile"
-    class="fixed bottom-6 right-6 bg-indigo-600 dark:bg-indigo-500 
+  <!-- Floating My Profile Button -->
+  <a href="/profile" class="fixed bottom-6 right-6 bg-indigo-600 dark:bg-indigo-500 
            text-white text-lg font-semibold px-5 py-3 rounded-full shadow-xl
            hover:scale-110 hover:bg-indigo-700 dark:hover:bg-indigo-400 transition z-50">
     My Profile
   </a>
-
 
   <!-- FEED TITLE -->
   <h1 class="text-center mt-8 mb-6 text-2xl font-semibold text-gray-800 dark:text-gray-300">
@@ -60,33 +56,54 @@
   <!-- POSTS GRID -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-6 pb-20">
 
-    <% posts.forEach(p => { %>
+    <% posts.forEach(p=> { %>
+
+      <!-- CARD -->
       <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-md
-                  hover:shadow-lg transition">
+                  hover:shadow-lg transition flex flex-col justify-between h-full">
 
         <!-- View profile -->
         <form method="GET" action="/users/<%= p.user_id %>/stalkerview" class="flex justify-end">
-          <button class="text-xl hover:scale-110 transition">👁️</button>
+          <div class="relative group">
+            <button class="text-xl hover:scale-125 transition transform duration-200">👁️</button>
+
+            <span class="absolute right-0 bottom-full mb-2 hidden group-hover:flex 
+             items-center gap-1 bg-indigo-600 text-white text-xs px-3 py-1.5 rounded-xl 
+             shadow-lg animate-pulse">
+              Stalk em?
+            </span>
+          </div>
         </form>
 
-        <p class="text-lg font-bold text-gray-900 dark:text-gray-100">
-          @<%= p.username %>
-        </p>
 
-        <p class="text-sm text-gray-600 dark:text-gray-400">
-          <%= p.email %>
-        </p>
 
-        <p class="mt-3 text-gray-800 dark:text-gray-200">
-          <%= p.content %>
-        </p>
+
+
+        <!-- Content block with spacing -->
+        <div class="space-y-2">
+          <p class="text-lg font-bold text-gray-900 dark:text-gray-100">
+            @<%= p.username %>
+          </p>
+
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            <%= p.email %>
+          </p>
+
+          <p class="mt-3 text-gray-800 dark:text-gray-200">
+            <%= p.content %>
+          </p>
+        </div>
+
+        <!-- Time Ago -->
+        <p class="text-xs mt-4 text-right italic tracking-wide 
+               text-gray-500 dark:text-gray-400 timeago" data-time="<%= p.created_at %>"></p>
+
       </div>
-    <% }) %>
+      <% }) %>
 
   </div>
 
-
-  <!-- DARK MODE SCRIPT -->
+  <!-- Dark Mode Script -->
   <script>
     const toggle = document.getElementById("themeToggle");
 
@@ -103,6 +120,35 @@
     });
 
     updateIcon();
+  </script>
+
+  <!-- Time Ago Script -->
+  <script>
+    function timeAgo(date) {
+      const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+
+      const intervals = {
+        year: 31536000,
+        month: 2592000,
+        week: 604800,
+        day: 86400,
+        hour: 3600,
+        minute: 60,
+        second: 1
+      };
+
+      for (const unit in intervals) {
+        const interval = Math.floor(seconds / intervals[unit]);
+        if (interval >= 1) {
+          return `${interval} ${unit}${interval > 1 ? "s" : ""} ago`;
+        }
+      }
+      return "just now";
+    }
+
+    document.querySelectorAll(".timeago").forEach(el => {
+      el.innerText = timeAgo(el.dataset.time);
+    });
   </script>
 
 </body>

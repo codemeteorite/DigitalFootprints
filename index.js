@@ -1,383 +1,419 @@
-require('dotenv').config();
+// server.js — Clean & final
 const { faker } = require('@faker-js/faker');
 const mysql = require('mysql2');
 const express = require("express");
 const session = require("express-session");
-const app = express();
 const path = require("path");
 const methodOverride = require('method-override');
 
+const app = express();
 
-
-// ---------------------------------------------
-// ---------------------------------------------
-// ---------------------------------------------
-// ---------------------------------------------
-// C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -p  Use this to connect SQL to Terminal
-// ---------------------------------------------
-// ---------------------------------------------
-// ---------------------------------------------
-// ---------------------------------------------
-
-
-
-// ---------------------------------------------
-// EJS + Middlewares
-// ---------------------------------------------
+/* ------------------------
+   Configuration & Middlewares
+   ------------------------ */
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use(session({
-    secret: "supersecretboss",
-    resave: false,
-    saveUninitialized: false
+  secret: "supersecretboss",
+  resave: false,
+  saveUninitialized: false
 }));
 
-// Generate UUID
-let generateNewID = () => faker.string.uuid();
+// Example: path to the uploaded file you gave me (transform into a URL when using tools)
+const UPLOADED_FILE_PATH = "/mnt/data/ad095fc9-1c96-4c72-ab55-a684a9d56146.png";
 
-// ---------------------------------------------
-// MySQL Connection
-// ---------------------------------------------
+/* ------------------------
+   Helpers
+   ------------------------ */
+const generateNewID = () => faker.string.uuid();
+
+function isLoggedIn(req, res, next) {
+  if (!req.session.user) return res.redirect("/login");
+  next();
+}
+
+function dbQuery(q, params = []) {
+  return new Promise((resolve, reject) => {
+    connection.query(q, params, (err, results) => {
+      if (err) return reject(err);
+      resolve(results);
+    });
+  });
+}
+
+/* ------------------------
+   MySQL connection
+   ------------------------ */
 const connection = mysql.createConnection({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    database: process.env.DB_NAME || 'firstdb',
-    password: process.env.DB_PASSWORD || '1-2-MohdYahiya'
+  host: "switchback.proxy.rlwy.net",
+  user: "root",
+  password: "xVKKdfUxQxgYKOPismGfQCySvdXuEmwD",
+  database: "railway",
+  port: 13252
 });
 
 connection.connect(err => {
-    if (err) throw err;
-    console.log("Connected to MySQL");
+  if (err) {
+    console.error("MySQL connection error:", err);
+    process.exit(1);
+  }
+  console.log("Connected to MySQL");
 });
 
-// ---------------------------------------------
-// Middleware to Protect Routes
-// ---------------------------------------------
-function isLoggedIn(req, res, next) {
-    if (!req.session.user) {
-        return res.redirect("/login");
-    }
-    next();
-}
+/* ------------------------
+   Routes
+   ------------------------ */
 
+// Home
+app.get("/", (req, res) => res.redirect("/feed"));
 
-// ---------------------------------------------
-// HOME
-// ---------------------------------------------
-app.get("/", (req, res) => {
-    res.redirect("/feed");
-});
-
-// ---------------------------------------------
-// LOGIN PAGE
-// ---------------------------------------------
+// Login page
 app.get("/login", (req, res) => {
-    if (req.session.user) return res.redirect("/feed");
-    res.render("login");
+  if (req.session.user) return res.redirect("/feed");
+  res.render("login");
 });
 
-// LOGIN SUBMIT
-app.post("/login", (req, res) => {
-    const { email, password } = req.body;
-
+// LOGIN submit
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  try {
     const q = "SELECT * FROM dfoots WHERE email = ? LIMIT 1";
+    const rows = await dbQuery(q, [email]);
 
-    connection.query(q, [email], (err, result) => {
-        if (err) {
-            console.log("DB ERROR:", err);
-            return res.render("wrongcredentials"); 
-        }
+    if (!rows.length) return res.render("wrongcredentials");
 
-        // If no user exists
-        if (result.length === 0) {
-            return res.render("wrongcredentials");
-        }
+    const user = rows[0];
+    if (user.password !== password) return res.render("wrongcredentials");
 
-        const user = result[0];
-
-        // Check password
-        if (user.password !== password) {
-            return res.render("wrongcredentials");
-        }
-
-        // SUCCESS → Store in session
-        req.session.user = user;
-
-        res.redirect("/feed");
-    });
+    req.session.user = user;
+    return res.redirect("/feed");
+  } catch (err) {
+    console.error(err);
+    return res.render("wrongcredentials");
+  }
 });
-
 
 // LOGOUT
 app.get("/logout", (req, res) => {
-    req.session.destroy();
-    res.redirect("/login");
+  req.session.destroy(() => res.redirect("/login"));
 });
 
-// ---------------------------------------------
-// FEED PAGE (ALL POSTS)
-// ---------------------------------------------
-app.get("/feed", isLoggedIn, (req, res) => {
-    const q = `
-        SELECT posts.*, dfoots.username, dfoots.email
-        FROM posts
-        JOIN dfoots ON posts.user_id = dfoots.id
-        ORDER BY posts.created_at DESC
-    `;
-
-    connection.query(q, (err, result) => {
-        if (err) throw err;
-        res.render("feed", { posts: result });
-    });
+/* ------------------------
+   FEED
+   ------------------------ */
+app.get("/feed", isLoggedIn, async (req, res) => {
+  const q = `
+    SELECT posts.*, 
+           dfoots.username, 
+           dfoots.email,
+           dfoots.profile_photo_url,
+           CONVERT_TZ(posts.created_at, '+00:00', '+05:30') AS created_at
+    FROM posts
+    JOIN dfoots ON posts.user_id = dfoots.id
+    ORDER BY posts.created_at DESC
+  `;
+  try {
+    const posts = await dbQuery(q);
+    res.render("feed", { posts });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
 });
 
-// ---------------------------------------------
-// PERSONAL USER PROFILE POSTS
-// ---------------------------------------------
-app.get("/users/:id/stalkerview", isLoggedIn, (req, res) => {
-    const { id } = req.params;
-
-    const q = `
-        SELECT dfoots.id,
-       dfoots.username,
-       dfoots.email,
-       dfoots.dream,
-       dfoots.created_at,
-       posts.id AS post_id,
-       posts.content AS post,
-       posts.created_at AS post_time
-FROM dfoots
-LEFT JOIN posts ON posts.user_id = dfoots.id
-WHERE dfoots.id = ?
-ORDER BY posts.created_at DESC
-`;
-
-    connection.query(q, [id], (err, result) => {
-        if (err) throw err;
-        res.render("stalkerview", { result });
-    });
+/* ------------------------
+   Stalkerview (user profile page)
+   ------------------------ */
+app.get("/users/:id/stalkerview", isLoggedIn, async (req, res) => {
+  const { id } = req.params;
+  const q = `
+    SELECT dfoots.id,
+           dfoots.username,
+           dfoots.email,
+           dfoots.dream,
+           dfoots.profile_photo_url,
+           dfoots.created_at,
+           posts.id AS post_id,
+           posts.content AS post,
+           posts.created_at AS post_time
+    FROM dfoots
+    LEFT JOIN posts ON posts.user_id = dfoots.id
+    WHERE dfoots.id = ?
+    ORDER BY posts.created_at DESC
+  `;
+  try {
+    const result = await dbQuery(q, [id]);
+    res.render("stalkerview", { result });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
 });
 
-// ---------------------------------------------
-// USERS LIST PAGE (Optional)
-// ---------------------------------------------
-app.get("/users", (req, res) => {
-    const q = `SELECT * FROM dfoots ORDER BY username DESC`;
-
-    connection.query(q, (err, result) => {
-        if (err) throw err;
-        res.render("users", { users: result });
-    });
+/* ------------------------
+   USERS list
+   ------------------------ */
+app.get("/users", isLoggedIn, async (req, res) => {
+  try {
+    const users = await dbQuery("SELECT * FROM dfoots ORDER BY username DESC");
+    res.render("users", { users });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
 });
 
-// ---------------------------------------------
-// NEW USER PAGE
-// ---------------------------------------------
+/* ------------------------
+   NEW USER (signup) with duplicate checks
+   ------------------------ */
 app.get("/newuser", (req, res) => {
-    let allotedId = generateNewID();
-    res.render("newuser", { allotedId });
+  const allotedId = generateNewID();
+  res.render("newuser", { allotedId });
 });
 
-// CREATE NEW USER
-app.post("/newuser/:id", (req, res) => {
-    const { id } = req.params;
-    const { userName, userEmail, userPassword } = req.body;
+app.post("/newuser/:id", async (req, res) => {
+  const { id } = req.params;
+  const { userName, userEmail, userPassword } = req.body;
 
-    const q = `INSERT INTO dfoots (id, username, email, password) VALUES (?,?,?,?)`;
+  try {
+    // Check duplicates first
+    const checkQ = `SELECT id, email, username FROM dfoots WHERE email = ? OR username = ? LIMIT 1`;
+    const found = await dbQuery(checkQ, [userEmail, userName]);
 
-    connection.query(q, [id, userName, userEmail, userPassword], err => {
-        if (err) throw err;
-        res.redirect("/login");  // FIXED
-    });
+    if (found.length > 0) {
+      // provide friendly message (you can render a UI page instead)
+      return res.status(400).send("Email or username already exists");
+    }
+
+    const insertQ = `INSERT INTO dfoots (id, username, email, password) VALUES (?,?,?,?)`;
+    await dbQuery(insertQ, [id, userName, userEmail, userPassword]);
+    return res.redirect("/login");
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send("DB error");
+  }
 });
 
-// ---------------------------------------------
-// EDIT USER PAGE
-// ---------------------------------------------
-app.get("/users/:id/edit", (req, res) => {
-    const { id } = req.params;
-
-    const q = `SELECT * FROM dfoots WHERE id = ?`;
-
-    connection.query(q, [id], (err, result) => {
-        if (err) throw err;
-        res.render("edit", { user: result[0] });
-    });
+/* ------------------------
+   EDIT user (admin-ish) - kept for compatibility
+   ------------------------ */
+app.get("/users/:id/edit", isLoggedIn, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await dbQuery(`SELECT * FROM dfoots WHERE id = ?`, [id]);
+    res.render("edit", { user: result[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
 });
 
-// UPDATE USER
-app.patch("/users/:id", (req, res) => {
-    const { id } = req.params;
-    const { userPassword, userName } = req.body;
+// PATCH update user (old endpoint) — checks password then updates username
+app.patch("/users/:id", isLoggedIn, async (req, res) => {
+  const { id } = req.params;
+  const { userPassword, userName } = req.body;
 
-    const q = `SELECT * FROM dfoots WHERE id = ?`;
+  try {
+    const rows = await dbQuery(`SELECT * FROM dfoots WHERE id = ?`, [id]);
+    if (!rows.length) return res.status(404).send("User not found");
 
-    connection.query(q, [id], (err, result) => {
-        if (err) throw err;
+    if (rows[0].password !== userPassword) return res.status(400).send("WRONG PASSWORD");
 
-        if (result[0].password !== userPassword) {
-            return res.send("WRONG PASSWORD");
-        }
+    // Check new username doesn't conflict with someone else
+    const checkQ = `SELECT id FROM dfoots WHERE username = ? AND id <> ? LIMIT 1`;
+    const conflict = await dbQuery(checkQ, [userName, id]);
+    if (conflict.length > 0) return res.status(400).send("Username already taken");
 
-        const updateQ = `UPDATE dfoots SET username = ? WHERE id = ?`;
-        connection.query(updateQ, [userName, id], err2 => {
-            if (err2) throw err2;
-            res.redirect("/feed");
-        });
-    });
+    await dbQuery(`UPDATE dfoots SET username = ? WHERE id = ?`, [userName, id]);
+    return res.redirect("/feed");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
 });
 
-// ---------------------------------------------
-// DELETE USER PAGE
-// ---------------------------------------------
-app.get("/users/:id/tryna_delete", (req, res) => {
-    const { id } = req.params;
-
-    const q = `SELECT * FROM dfoots WHERE id = ?`;
-
-    connection.query(q, [id], (err, result) => {
-        if (err) throw err;
-        res.render("delete", { user: result[0] });
-    });
+/* ------------------------
+   DELETE user
+   ------------------------ */
+app.get("/users/:id/tryna_delete", isLoggedIn, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await dbQuery(`SELECT * FROM dfoots WHERE id = ?`, [id]);
+    res.render("delete", { user: result[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
 });
 
-// DELETE USER
-app.delete("/users/:id", (req, res) => {
-    const { id } = req.params;
-    const { userEmail, userPassword } = req.body;
+app.delete("/users/:id", isLoggedIn, async (req, res) => {
+  const { id } = req.params;
+  const { userEmail, userPassword } = req.body;
 
-    const q = `SELECT * FROM dfoots WHERE id = ?`;
+  try {
+    const result = await dbQuery(`SELECT * FROM dfoots WHERE id = ?`, [id]);
+    if (!result.length) return res.status(404).send("User not found");
 
-    connection.query(q, [id], (err, result) => {
-        if (err) throw err;
+    if (result[0].email !== userEmail || result[0].password !== userPassword) {
+      return res.status(400).send("WRONG CREDENTIALS");
+    }
 
-        if (result[0].email !== userEmail || result[0].password !== userPassword) {
-            return res.send("WRONG CREDENTIALS");
-        }
-
-        const delQ = `DELETE FROM dfoots WHERE id = ?`;
-        connection.query(delQ, [id], err2 => {
-            if (err2) throw err2;
-            req.session.destroy();
-            res.redirect("/login");
-        });
-    });
+    await dbQuery(`DELETE FROM dfoots WHERE id = ?`, [id]);
+    req.session.destroy(() => res.redirect("/login"));
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
 });
 
-app.get("/profile", isLoggedIn, (req, res) => {
-    const user = req.session.user;
-
-    const q = `
-        SELECT posts.id AS post_id, posts.content AS post, posts.created_at AS post_time
-        FROM posts
-        WHERE posts.user_id = ?
-        ORDER BY posts.created_at DESC
-    `;
-
-    connection.query(q, [user.id], (err, result) => {
-        if (err) throw err;
-        console.log;
-        res.render("profile", {
-            user: user,
-            posts: (result)
-        });
-    });
+/* ------------------------
+   PROFILE & POSTS
+   ------------------------ */
+app.get("/profile", isLoggedIn, async (req, res) => {
+  const user = req.session.user;
+  const q = `
+    SELECT posts.id AS post_id, posts.content AS post, posts.created_at AS post_time
+    FROM posts
+    WHERE posts.user_id = ?
+    ORDER BY posts.created_at DESC
+  `;
+  try {
+    const posts = await dbQuery(q, [user.id]);
+    res.render("profile", { user, posts });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
 });
 
-
-app.post("/add-dream", isLoggedIn, (req, res) => {
-    const userId = req.session.user.id;
-    const { dream } = req.body;
-
-    const q = `UPDATE dfoots SET dream = ? WHERE id = ?`;
-
-    connection.query(q, [dream, userId], (err) => {
-        if (err) throw err;
-
-        req.session.user.dream = dream; // instant update
-        res.redirect("/profile");
-    });
+app.post("/add-dream", isLoggedIn, async (req, res) => {
+  const userId = req.session.user.id;
+  const { dream } = req.body;
+  try {
+    await dbQuery(`UPDATE dfoots SET dream = ? WHERE id = ?`, [dream, userId]);
+    req.session.user.dream = dream;
+    res.redirect("/profile");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
 });
 
-
-app.post("/add-post", (req, res) => {
-    if (!req.session.user) return res.redirect("/login");
-
-    const { content } = req.body;
-    const userId = req.session.user.id;
-
-    const q = `INSERT INTO posts (id, user_id, content) VALUES (?, ?, ?)`;
-
-    connection.query(
-        q,
-        [faker.string.uuid(), userId, content],
-        (err) => {
-            if (err) throw err;
-            res.redirect("/feed");
-        }
-    );
+/* ------------------------
+   POSTS create/delete/edit
+   ------------------------ */
+app.post("/add-post", isLoggedIn, async (req, res) => {
+  const { content } = req.body;
+  const userId = req.session.user.id;
+  const q = `INSERT INTO posts (id, user_id, content) VALUES (?, ?, ?)`;
+  try {
+    await dbQuery(q, [generateNewID(), userId, content]);
+    res.redirect("/feed");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
 });
 
-app.delete("/delete-post/:id", isLoggedIn, (req, res) => {
-    const { id } = req.params;
-    const userId = req.session.user.id;
+app.delete("/delete-post/:id", isLoggedIn, async (req, res) => {
+  const { id } = req.params;
+  const userId = req.session.user.id;
 
-    // Check if post belongs to logged-in user
-    const checkQ = `SELECT user_id FROM posts WHERE id = ?`;
-    
-    connection.query(checkQ, [id], (err, result) => {
-        if (err) throw err;
-        
-        if (!result.length) {
-            return res.send("Post not found");
-        }
-        
-        if (result[0].user_id !== userId) {
-            return res.send("You can only delete your own posts");
-        }
+  try {
+    const rows = await dbQuery(`SELECT user_id FROM posts WHERE id = ?`, [id]);
+    if (!rows.length) return res.status(404).send("Post not found");
+    if (rows[0].user_id !== userId) return res.status(403).send("You can only delete your own posts");
 
-        const q = "DELETE FROM posts WHERE id = ?";
-
-        connection.query(q, [id], (err) => {
-            if (err) throw err;
-            res.redirect("/profile");
-        });
-    });
+    await dbQuery(`DELETE FROM posts WHERE id = ?`, [id]);
+    res.redirect("/profile");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
 });
 
-
-app.get("/posts/edit/:id", (req, res) => {
-    const { id } = req.params;
-
-    const q = `SELECT * FROM posts WHERE id = ?`;
-
-    connection.query(q, [id], (err, result) => {
-        if (err) throw err;
-        res.render("editpost", { ogpost: result[0] });
-    });
+app.get("/posts/edit/:id", isLoggedIn, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const rows = await dbQuery(`SELECT * FROM posts WHERE id = ?`, [id]);
+    if (!rows.length) return res.status(404).send("Post not found");
+    res.render("editpost", { ogpost: rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
 });
 
-app.patch("/posts/edit/:id", (req, res) => {
-    const { id } = req.params;
-    const { updatedContent } = req.body;
-
-    const q = `UPDATE posts SET content = ? WHERE id = ?`;
-
-    connection.query(q, [updatedContent, id], (err) => {
-        if (err) throw err;
-        res.redirect("/profile");
-    });
+app.patch("/posts/edit/:id", isLoggedIn, async (req, res) => {
+  const { id } = req.params;
+  const { updatedContent } = req.body;
+  try {
+    await dbQuery(`UPDATE posts SET content = ? WHERE id = ?`, [updatedContent, id]);
+    res.redirect("/profile");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
 });
 
+/* ------------------------
+   Add photo URL (profile)
+   ------------------------ */
+app.post("/add-photo-url", isLoggedIn, async (req, res) => {
+  const userId = req.session.user.id;
+  const { photo_url } = req.body;
+  try {
+    await dbQuery(`UPDATE dfoots SET profile_photo_url = ? WHERE id = ?`, [photo_url, userId]);
+    req.session.user.profile_photo_url = photo_url;
+    res.redirect("/profile");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
+});
 
-// ---------------------------------------------
-// START SERVER
-// ---------------------------------------------
-app.listen(3000, () => {
-    console.log("Waiting for you @ http://localhost:3000");
+/* ------------------------
+   Edit Profile page + update (with uniqueness check)
+   ------------------------ */
+app.get("/edit-profile", isLoggedIn, (req, res) => {
+  res.render("editprofile", { user: req.session.user });
+});
+
+app.post("/edit-profile", isLoggedIn, async (req, res) => {
+  const userId = req.session.user.id;
+  const { username, photo_url } = req.body;
+
+  try {
+    // make sure username isn't used by someone else
+    const checkQ = `SELECT id FROM dfoots WHERE username = ? AND id <> ? LIMIT 1`;
+    const conflict = await dbQuery(checkQ, [username, userId]);
+    if (conflict.length > 0) {
+      return res.status(400).send("Username already taken!");
+    }
+
+    await dbQuery(`UPDATE dfoots SET username = ?, profile_photo_url = ? WHERE id = ?`, [username, photo_url, userId]);
+
+    // instant session update
+    req.session.user.username = username;
+    req.session.user.profile_photo_url = photo_url;
+
+    res.redirect("/profile");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
+});
+
+/* ------------------------
+   Start server
+   ------------------------ */
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Waiting for you @ http://localhost:${PORT}`);
 });

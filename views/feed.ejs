@@ -95,9 +95,12 @@
         </div>
 
         <!-- Time Ago -->
-        <p class="timeago text-xs mt-4 text-right italic tracking-wide 
-       text-gray-500 dark:text-gray-400"
-   data-time="<%= p.created_at %>"></p>
+        <p class="timeago"
+   data-time="<%= p.created_at %>"
+   style="color:yellow;font-weight:bold;">
+   IF YOU SEE THIS → SCRIPT FAILED
+</p>
+
 
     
 
@@ -158,6 +161,13 @@ document.addEventListener("DOMContentLoaded", () => {
     el.innerText = timeAgo(raw);
   });
 
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".timeago").forEach(el => {
+    el.innerText = "TIME SCRIPT RUNNING";
+  });
 });
 </script>
 

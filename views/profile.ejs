@@ -121,10 +121,7 @@
                 <button type="submit" title="Edit" class="text-xl hover:scale-110 transition">✏️</button>
               </form>
 
-              <form method="POST" action="/delete-post/<%= p.post_id %>?_method=DELETE">
-                <button type="submit" title="Delete" class="text-xl hover:scale-110 transition">🗑️</button>
-              </form>
-            </div>
+              
 
             <p class="text-lg mb-2 pr-12"><%= p.post %></p>
             <p class="text-sm opacity-70 pr-12"><%= new Date(p.post_time).toLocaleString() %></p>

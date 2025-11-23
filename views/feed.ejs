@@ -131,12 +131,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function timeAgo(raw) {
     // Parse MySQL DATETIME format: "2025-11-18 06:41:32"
-    // Convert space to 'T' for ISO format
-    const isoString = raw.replace(' ', 'T');
-    const date = new Date(isoString);
+    const parts = raw.match(/(\d+)-(\d+)-(\d+) (\d+):(\d+):(\d+)/);
+    
+    if (!parts) {
+      console.warn("Invalid date format:", raw);
+      return "just now";
+    }
+    
+    const date = new Date(
+      parseInt(parts[1]),      // year
+      parseInt(parts[2]) - 1,  // month (0-indexed)
+      parseInt(parts[3]),      // day
+      parseInt(parts[4]),      // hour
+      parseInt(parts[5]),      // minute
+      parseInt(parts[6])       // second
+    );
     
     if (isNaN(date.getTime())) {
-      console.warn("Invalid date:", raw);
       return "just now";
     }
 

@@ -30,22 +30,29 @@
     white-space: nowrap;
     border-right: 2px solid currentColor;
     width: 0;
-    animation: typing 2.6s steps(30, end) forwards,
-               blink 0.75s step-end infinite;
     margin: 0 auto;
+    animation: typing 2.4s steps(30, end) forwards,
+               blink 0.75s step-end infinite;
   }
 
-  /* Width tuned for text-2xl Inter (NO CUT-OFF) */
+  /* DEFAULT (Mobile) — smaller width */
   @keyframes typing {
     from { width: 0; }
-    to   { width: 310px; } /* PERFECT WIDTH FOR 2XL */
+    to   { width: 230px; }  /* Perfect for mobile */
+  }
+
+  /* DESKTOP OVERRIDE */
+  @media (min-width: 640px) {
+    @keyframes typing {
+      from { width: 0; }
+      to   { width: 310px; } /* Full width for larger screens */
+    }
   }
 
   @keyframes blink {
     50% { border-color: transparent; }
   }
 </style>
-
 </head>
 
 <body class="bg-gray-100 dark:bg-gray-900 flex items-center justify-center min-h-screen p-6 transition">

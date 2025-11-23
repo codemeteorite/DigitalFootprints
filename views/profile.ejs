@@ -76,9 +76,10 @@
 
           <!-- User Info -->
           <div class="w-full lg:w-2/3">
-            <h3 class="text-2xl font-bold break-words">
+            <h3 class="text-2xl font-bold break-words max-w-[260px] sm:max-w-full leading-snug">
               @<%= user ? user.username : '' %>
             </h3>
+
             <p class="text-gray-700 dark:text-gray-300 mt-1">
               <%= user ? user.email : '' %>
             </p>

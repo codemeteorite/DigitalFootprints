@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,15 +7,6 @@
 
   <!-- Royal Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
-
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-    .royal-title {
-      font-family: 'Playfair Display', serif;
-    }
-  </style>
 
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -29,93 +19,59 @@
   </script>
 </head>
 
-<body class="bg-gray-100 dark:bg-gray-900 min-h-screen transition">
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen transition text-gray-900 dark:text-white">
 
   <!-- Navbar -->
-<nav class="w-full px-6 py-4 bg-white dark:bg-gray-800 shadow-md 
-            flex justify-between items-center gap-3 sticky top-0 z-40 overflow-hidden">
+  <nav class="w-full px-6 py-4 bg-white dark:bg-gray-800 shadow-md 
+              flex justify-between items-center gap-3 sticky top-0 z-40">
 
-
+    <!-- ORIGINAL LOGOUT BUTTON (UNTOUCHED) -->
     <a 
-  href="/logout"
-  class="group w-[131px] h-[51px] rounded-[15px] cursor-pointer transition-all duration-300 
-         bg-gradient-to-br from-red-500 to-transparent 
-         bg-red-300/40 flex items-center justify-center hover:bg-red-400/70 
-         hover:shadow-[0_0_10px_rgba(255,0,0,0.5)] outline-none"
->
-  <div 
-    class="w-[127px] h-[47px] rounded-[13px] bg-black flex items-center justify-center gap-3 
-           text-white font-semibold transition-all duration-300"
-  >
-    <!-- Logout Icon -->
-    <svg xmlns="http://www.w3.org/2000/svg" 
-         viewBox="0 0 24 24" 
-         class="w-[26px] h-[26px] fill-white">
-      <path d="M16 13v-2H7V8l-5 4 5 4v-3h9zm3-11H5c-1.1 0-2 .9-2 
-               2v4h2V4h14v16H5v-4H3v4c0 1.1.9 2 2 
-               2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
-    </svg>
+      href="/logout"
+      class="group w-[131px] h-[51px] rounded-[15px] cursor-pointer transition-all duration-300 
+            bg-gradient-to-br from-red-500 to-transparent 
+            bg-red-300/40 flex items-center justify-center hover:bg-red-400/70 
+            hover:shadow-[0_0_10px_rgba(255,0,0,0.5)] outline-none"
+    >
+      <div 
+        class="w-[127px] h-[47px] rounded-[13px] bg-black flex items-center justify-center gap-3 
+              text-white font-semibold transition-all duration-300"
+      >
+        <!-- Logout Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" 
+              viewBox="0 0 24 24" 
+              class="w-[26px] h-[26px] fill-white">
+          <path d="M16 13v-2H7V8l-5 4 5 4v-3h9zm3-11H5c-1.1 0-2 .9-2 
+                 2v4h2V4h14v16H5v-4H3v4c0 1.1.9 2 2 
+                 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+        </svg>
+        Logout
+      </div>
+    </a>
 
-    Logout
-  </div>
-</a>
+    <!-- NAV TITLE -->
+    <h1 class="royal-title text-3xl font-bold text-gray-800 dark:text-gray-200 text-center flex-1">
+      Digital Footprints
+    </h1>
 
-
-    <h1 class="royal-title text-3xl font-bold text-gray-800 dark:text-gray-200 w-full sm:w-auto text-center">
-  Digital Footprints
-</h1>
-
-
-    <button id="themeToggle" class="text-2xl bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded-full shadow hover:scale-110 transition">
+    <!-- DARK MODE BUTTON -->
+    <button 
+      id="themeToggle"
+      class="text-2xl bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded-full shadow hover:scale-110 transition">
       🌙
     </button>
   </nav>
 
-  <!-- Profile Button -->
-  <a 
-  href="/profile"
-  class="group fixed bottom-6 right-6 w-[150px] h-[55px] z-50
-         rounded-[18px] cursor-pointer 
-         bg-gradient-to-br from-pink-500 to-transparent bg-pink-300/40
-         flex items-center justify-center 
-         transition-all duration-500 
-         hover:bg-pink-400/70 hover:shadow-[0_0_15px_rgba(216,70,239,0.6)]"
->
-  <div 
-    class="w-[144px] h-[50px] rounded-[15px] bg-black 
-           flex items-center justify-center gap-3 
-           text-white font-semibold text-lg
-           transition-all duration-500"
-  >
-    <!-- ICON -->
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      viewBox="0 0 24 24"
-      class="w-[26px] h-[26px] fill-white opacity-80 
-             transition-all duration-500 group-hover:translate-x-1"
-    >
-      <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
-    </svg>
-
-    My Profile
-  </div>
-</a>
-
-
-  <!-- Title -->
-  <h1 class="royal-title text-center mt-8 mb-6 pl text-2xl font-semibold text-gray-800 dark:text-gray-300">
-    Look what's moving in people's head
-  </h1>
+  <!-- NO SUBTITLE & NO SECOND TITLE AS REQUESTED -->
 
   <!-- FEED GRID -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-6 pb-20">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-6 pb-20 mt-8">
 
-    <% posts.forEach(p=> { %>
+    <% posts.forEach(p => { %>
 
-      <!-- CARD WITH BLUE SWOOSH ANIMATION -->
       <div class="
         relative bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-300
-        shadow-sm transition-all duration-300 overflow-hidden
+        dark:border-gray-700 shadow-sm transition-all duration-300 overflow-hidden
 
         before:content-[''] before:absolute before:top-0 before:right-[-40px]
         before:w-[50px] before:h-full before:skew-x-[10deg]
@@ -128,34 +84,51 @@
 
         <!-- Stalk Button -->
         <form method="GET" action="/users/<%= p.user_id %>/stalkerview" class="flex justify-end">
-          <div class="relative group">
-            <button class="text-xl hover:scale-125 transition transform duration-200">👁️</button>
-          </div>
+          <button class="text-xl hover:scale-125 transition transform duration-200">👁️</button>
         </form>
 
-        <!-- Content -->
         <div class="space-y-2">
-          <p class="text-lg font-bold text-gray-900 dark:text-gray-100">
-            @<%= p.username %>
-          </p>
-
-          <p class="text-sm text-gray-600 dark:text-gray-400">
-            <%= p.email %>
-          </p>
-
-          <p class="mt-3 text-gray-800 dark:text-gray-200">
-            <%= p.content %>
-          </p>
+          <p class="text-lg font-bold">@<%= p.username %></p>
+          <p class="text-sm text-gray-600 dark:text-gray-400"><%= p.email %></p>
+          <p class="mt-3"><%= p.content %></p>
         </div>
 
-        <!-- Time Ago -->
         <p class="text-xs text-gray-500 dark:text-gray-400 mt-4 timeago"
-           data-time="<%= p.created_at %>"></p>
+          data-time="<%= p.created_at %>"></p>
 
       </div>
     <% }) %>
 
   </div>
+
+  <!-- ORIGINAL PROFILE BUTTON (UNTOUCHED) -->
+  <a 
+    href="/profile"
+    class="group fixed bottom-6 right-6 w-[150px] h-[55px] z-50
+          rounded-[18px] cursor-pointer 
+          bg-gradient-to-br from-pink-500 to-transparent bg-pink-300/40
+          flex items-center justify-center 
+          transition-all duration-500 
+          hover:bg-pink-400/70 hover:shadow-[0_0_15px_rgba(216,70,239,0.6)]"
+  >
+    <div 
+      class="w-[144px] h-[50px] rounded-[15px] bg-black 
+            flex items-center justify-center gap-3 
+            text-white font-semibold text-lg
+            transition-all duration-500"
+    >
+      <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        viewBox="0 0 24 24"
+        class="w-[26px] h-[26px] fill-white opacity-80 
+              transition-all duration-500 group-hover:translate-x-1"
+      >
+        <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+      </svg>
+
+      My Profile
+    </div>
+  </a>
 
   <!-- DARK MODE SCRIPT -->
   <script>
@@ -214,5 +187,4 @@
   </script>
 
 </body>
-
 </html>

@@ -95,11 +95,8 @@
         </div>
 
         <!-- Time Ago -->
-        <p class="timeago"
-   data-time="<%= p.created_at %>"
-   style="color:yellow;font-weight:bold;">
-   IF YOU SEE THIS → SCRIPT FAILED
-</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-4 self-end timeago" data-time="<%= p.created_at %>">
+          <!-- Time will be populated by JS -->
 
 
     
@@ -133,8 +130,14 @@
 document.addEventListener("DOMContentLoaded", () => {
 
   function timeAgo(raw) {
-    // FIX: convert string to a guaranteed JS-parsable date
-    const date = new Date(raw.replace("Z", "").replace(" ", "T") + "Z");
+    // Parse the date string correctly (handles both ISO and MySQL formats)
+    const date = new Date(raw);
+    
+    // If date is invalid, return "just now"
+    if (isNaN(date.getTime())) {
+      console.warn("Invalid date:", raw);
+      return "just now";
+    }
 
     const seconds = Math.floor((Date.now() - date) / 1000);
 

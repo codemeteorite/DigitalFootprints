@@ -127,12 +127,7 @@ app.get('/feed', isLoggedIn, async (req, res) => {
            dfoots.username, 
            dfoots.email,
            dfoots.profile_photo_url,
-           DATE_FORMAT(
-  CONVERT_TZ(posts.created_at, '+00:00', '+05:30'),
-  '%Y-%m-%dT%H:%i:%sZ'
-) AS created_at
-
-
+           posts.created_at
     FROM posts
     JOIN dfoots ON posts.user_id = dfoots.id
     ORDER BY posts.created_at DESC

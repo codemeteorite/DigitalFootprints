@@ -130,10 +130,11 @@
 document.addEventListener("DOMContentLoaded", () => {
 
   function timeAgo(raw) {
-    // Parse the date string correctly (handles both ISO and MySQL formats)
-    const date = new Date(raw);
+    // Parse MySQL DATETIME format: "2025-11-18 06:41:32"
+    // Convert space to 'T' for ISO format
+    const isoString = raw.replace(' ', 'T');
+    const date = new Date(isoString);
     
-    // If date is invalid, return "just now"
     if (isNaN(date.getTime())) {
       console.warn("Invalid date:", raw);
       return "just now";

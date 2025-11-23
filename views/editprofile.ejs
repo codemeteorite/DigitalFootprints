@@ -1,19 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta viewport="width=device-width, initial-scale=1.0">
   <title>Edit Profile</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
 
   <script>
     tailwind.config = { darkMode: "class" };
+
+    // Default: DARK MODE
+    if (!localStorage.theme) {
+      localStorage.theme = "dark";
+    }
+
+    if (localStorage.theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+
+    function toggleTheme() {
+      if (document.documentElement.classList.contains("dark")) {
+        document.documentElement.classList.remove("dark");
+        localStorage.theme = "light";
+      } else {
+        document.documentElement.classList.add("dark");
+        localStorage.theme = "dark";
+      }
+    }
   </script>
 </head>
 
 <body class="bg-gray-100 dark:bg-gray-900 p-6 min-h-screen text-gray-900 dark:text-gray-100">
+
+  <!-- Toggle Button -->
+  <button onclick="toggleTheme()"
+    class="absolute top-4 right-4 px-3 py-1 rounded-lg bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 transition">
+    Toggle Mode
+  </button>
 
   <div class="max-w-lg mx-auto bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl">
 
@@ -49,7 +76,7 @@
 
     <div class="text-center mt-4">
       <a href="/profile"
-        class="text-indigo-500 hover:underline">Back  to Profile?</a>
+        class="text-indigo-500 hover:underline">Back to Profile?</a>
     </div>
 
   </div>

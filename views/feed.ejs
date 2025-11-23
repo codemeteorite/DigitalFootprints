@@ -113,39 +113,47 @@
   </script>
 
   <!-- TIME AGO SCRIPT (FULLY FIXED FOR MYSQL TIMESTAMP) -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
+ <script>
+document.addEventListener("DOMContentLoaded", () => {
 
-      function timeAgo(raw) {
-        const date = new Date(raw.replace(" ", "T") + "Z");
+  function timeAgo(raw) {
 
-        const seconds = Math.floor((Date.now() - date) / 1000);
+    // 100% reliable MySQL DATETIME parser
+    const date = new Date(raw.replace(" ", "T"));
 
-        const intervals = {
-          year: 31536000,
-          month: 2592000,
-          week: 604800,
-          day: 86400,
-          hour: 3600,
-          minute: 60,
-          second: 1
-        };
+    if (isNaN(date.getTime())) {
+      console.log("Failed to parse:", raw);
+      return "just now";
+    }
 
-        for (const unit in intervals) {
-          const interval = Math.floor(seconds / intervals[unit]);
-          if (interval >= 1) {
-            return `${interval} ${unit}${interval > 1 ? "s" : ""} ago`;
-          }
-        }
-        return "just now";
+    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+
+    const intervals = {
+      year: 31536000,
+      month: 2592000,
+      week: 604800,
+      day: 86400,
+      hour: 3600,
+      minute: 60,
+      second: 1
+    };
+
+    for (const unit in intervals) {
+      const interval = Math.floor(seconds / intervals[unit]);
+      if (interval >= 1) {
+        return `${interval} ${unit}${interval > 1 ? "s" : ""} ago`;
       }
+    }
+    return "just now";
+  }
 
-      document.querySelectorAll(".timeago").forEach(el => {
-        const raw = el.dataset.time;
-        el.innerText = timeAgo(raw);
-      });
-    });
-  </script>
+  document.querySelectorAll(".timeago").forEach(el => {
+    el.innerText = timeAgo(el.dataset.time.trim());
+  });
+
+});
+</script>
+
 
 </body>
 

@@ -120,12 +120,10 @@
 document.addEventListener("DOMContentLoaded", () => {
 
   function timeAgo(raw) {
+    const date = new Date(raw);
 
-    // 100% reliable MySQL DATETIME parser
-    const date = new Date(raw.replace(" ", "T"));
-
-    if (isNaN(date.getTime())) {
-      console.log("Failed to parse:", raw);
+    if (isNaN(date)) {
+      console.log("Invalid date:", raw);
       return "just now";
     }
 
@@ -137,25 +135,28 @@ document.addEventListener("DOMContentLoaded", () => {
       week: 604800,
       day: 86400,
       hour: 3600,
-      minute: 60,
-      second: 1
+      minute: 60
     };
 
     for (const unit in intervals) {
-      const interval = Math.floor(seconds / intervals[unit]);
-      if (interval >= 1) {
-        return `${interval} ${unit}${interval > 1 ? "s" : ""} ago`;
+      const value = Math.floor(seconds / intervals[unit]);
+      if (value >= 1) {
+        return `${value} ${unit}${value > 1 ? "s" : ""} ago`;
       }
     }
+
     return "just now";
   }
 
+  // APPLY TIME AGO
   document.querySelectorAll(".timeago").forEach(el => {
-    el.innerText = timeAgo(el.dataset.time.trim());
+    const raw = el.dataset.time;    // THIS WAS THE PROBLEM
+    el.textContent = timeAgo(raw);  // FIXED
   });
 
 });
 </script>
+
 
 
 </body>

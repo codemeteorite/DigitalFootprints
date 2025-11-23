@@ -33,9 +33,30 @@
 
   <!-- Navbar -->
   <nav class="w-full px-6 py-4 bg-white dark:bg-gray-800 shadow-md flex justify-between items-center sticky top-0 z-40">
-    <a href="/logout" class="text-red-500 font-semibold text-lg hover:text-red-400 hover:underline transition">
-      Logout
-    </a>
+    <a 
+  href="/logout"
+  class="group w-[131px] h-[51px] rounded-[15px] cursor-pointer transition-all duration-300 
+         bg-gradient-to-br from-red-500 to-transparent 
+         bg-red-300/40 flex items-center justify-center hover:bg-red-400/70 
+         hover:shadow-[0_0_10px_rgba(255,0,0,0.5)] outline-none"
+>
+  <div 
+    class="w-[127px] h-[47px] rounded-[13px] bg-black flex items-center justify-center gap-3 
+           text-white font-semibold transition-all duration-300"
+  >
+    <!-- Logout Icon -->
+    <svg xmlns="http://www.w3.org/2000/svg" 
+         viewBox="0 0 24 24" 
+         class="w-[26px] h-[26px] fill-white">
+      <path d="M16 13v-2H7V8l-5 4 5 4v-3h9zm3-11H5c-1.1 0-2 .9-2 
+               2v4h2V4h14v16H5v-4H3v4c0 1.1.9 2 2 
+               2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+    </svg>
+
+    Logout
+  </div>
+</a>
+
 
     <h1 class="royal-title text-xl font-bold text-gray-800 dark:text-gray-200">
       Digital Footprints

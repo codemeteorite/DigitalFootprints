@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Feed</title>
 
+  <!-- Royal Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 
   <style>
@@ -30,9 +31,8 @@
 
 <body class="bg-gray-100 dark:bg-gray-900 min-h-screen transition">
 
-  <nav class="w-full px-6 py-4 bg-white dark:bg-gray-800 shadow-md
-              flex justify-between items-center sticky top-0 z-40">
-
+  <!-- Navbar -->
+  <nav class="w-full px-6 py-4 bg-white dark:bg-gray-800 shadow-md flex justify-between items-center sticky top-0 z-40">
     <a href="/logout" class="text-red-500 font-semibold text-lg hover:text-red-400 hover:underline transition">
       Logout
     </a>
@@ -41,40 +41,51 @@
       Digital Footprints
     </h1>
 
-    <button id="themeToggle" class="text-2xl bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white 
-             p-2 rounded-full shadow hover:scale-110 transition">
+    <button id="themeToggle" class="text-2xl bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded-full shadow hover:scale-110 transition">
       🌙
     </button>
   </nav>
 
-  <a href="/profile" class="fixed bottom-6 right-6 bg-indigo-600 dark:bg-indigo-500 
-           text-white text-lg font-semibold px-5 py-3 rounded-full shadow-xl
-           hover:scale-110 hover:bg-indigo-700 dark:hover:bg-indigo-400 transition z-50">
+  <!-- Profile Button -->
+  <a href="/profile" class="fixed bottom-6 right-6 bg-indigo-600 dark:bg-indigo-500 text-white text-lg font-semibold px-5 py-3 rounded-full shadow-xl hover:scale-110 hover:bg-indigo-700 dark:hover:bg-indigo-400 transition z-50">
     My Profile
   </a>
 
+  <!-- Title -->
   <h1 class="royal-title text-center mt-8 mb-6 text-2xl font-semibold text-gray-800 dark:text-gray-300">
     Look what's moving in people's head
   </h1>
 
+  <!-- FEED GRID -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-6 pb-20">
 
     <% posts.forEach(p=> { %>
 
-      <div class="bg-[#f6f6f6] dark:bg-[#1f1f1f] rounded-2xl p-5 shadow-md
-                  hover:shadow-lg transition flex flex-col justify-between h-full">
+      <!-- CARD WITH BLUE SWOOSH ANIMATION -->
+      <div class="
+        relative bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-300
+        shadow-sm transition-all duration-300 overflow-hidden
 
+        before:content-[''] before:absolute before:top-0 before:right-[-40px]
+        before:w-[50px] before:h-full before:skew-x-[10deg]
+        before:bg-[linear-gradient(-45deg,#4f4fee,#6d6dff)]
+        before:opacity-0 before:transition-all before:duration-300
+
+        hover:shadow-xl hover:border-indigo-300
+        hover:before:right-[-5px] hover:before:opacity-100
+      ">
+
+        <!-- Stalk Button -->
         <form method="GET" action="/users/<%= p.user_id %>/stalkerview" class="flex justify-end">
           <div class="relative group">
             <button class="text-xl hover:scale-125 transition transform duration-200">👁️</button>
-            <span class="absolute right-0 bottom-full mb-2 hidden group-hover:flex 
-             items-center gap-1 bg-indigo-600 text-white text-xs px-3 py-1.5 rounded-xl 
-             shadow-lg animate-pulse">
+            <span class="absolute right-0 bottom-full mb-2 hidden group-hover:flex items-center gap-1 bg-indigo-600 text-white text-xs px-3 py-1.5 rounded-xl shadow-lg animate-pulse">
               Stalk em?
             </span>
           </div>
         </form>
 
+        <!-- Content -->
         <div class="space-y-2">
           <p class="text-lg font-bold text-gray-900 dark:text-gray-100">
             @<%= p.username %>
@@ -89,6 +100,7 @@
           </p>
         </div>
 
+        <!-- Time Ago -->
         <p class="text-xs text-gray-500 dark:text-gray-400 mt-4 timeago"
            data-time="<%= p.created_at %>"></p>
 
@@ -97,6 +109,7 @@
 
   </div>
 
+  <!-- DARK MODE SCRIPT -->
   <script>
     const toggle = document.getElementById("themeToggle");
 
@@ -115,45 +128,42 @@
     updateIcon();
   </script>
 
+  <!-- TIME AGO SCRIPT -->
   <script>
-document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
 
-  function timeAgo(raw) {
-    const date = new Date(raw);
+      function timeAgo(raw) {
+        const date = new Date(raw);
 
-    if (isNaN(date)) {
-      console.log("Invalid date:", raw);
-      return "just now";
-    }
+        if (isNaN(date)) return "just now";
 
-    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+        const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
 
-    const intervals = {
-      year: 31536000,
-      month: 2592000,
-      week: 604800,
-      day: 86400,
-      hour: 3600,
-      minute: 60
-    };
+        const intervals = {
+          year: 31536000,
+          month: 2592000,
+          week: 604800,
+          day: 86400,
+          hour: 3600,
+          minute: 60
+        };
 
-    for (const unit in intervals) {
-      const value = Math.floor(seconds / intervals[unit]);
-      if (value >= 1) {
-        return `${value} ${unit}${value > 1 ? "s" : ""} ago`;
+        for (const unit in intervals) {
+          const value = Math.floor(seconds / intervals[unit]);
+          if (value >= 1)
+            return `${value} ${unit}${value > 1 ? "s" : ""} ago`;
+        }
+
+        return "just now";
       }
-    }
 
-    return "just now";
-  }
+      document.querySelectorAll(".timeago").forEach(el => {
+        const raw = el.dataset.time;
+        el.textContent = timeAgo(raw);
+      });
 
-  document.querySelectorAll(".timeago").forEach(el => {
-    const raw = el.dataset.time;
-    el.textContent = timeAgo(raw);
-  });
-
-});
-</script>
+    });
+  </script>
 
 </body>
 

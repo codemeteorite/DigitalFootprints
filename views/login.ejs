@@ -30,19 +30,22 @@
     white-space: nowrap;
     border-right: 2px solid currentColor;
     width: 0;
-    animation: typing 2.2s steps(30, end) forwards,
+    animation: typing 2.6s steps(30, end) forwards,
                blink 0.75s step-end infinite;
+    margin: 0 auto;
   }
 
+  /* Width tuned for text-2xl Inter (NO CUT-OFF) */
   @keyframes typing {
     from { width: 0; }
-    to   { width: 220px; } /* Adjust until it fits perfectly */
+    to   { width: 310px; } /* PERFECT WIDTH FOR 2XL */
   }
 
   @keyframes blink {
     50% { border-color: transparent; }
   }
 </style>
+
 </head>
 
 <body class="bg-gray-100 dark:bg-gray-900 flex items-center justify-center min-h-screen p-6 transition">
@@ -56,7 +59,7 @@
     <!-- LOGIN CARD -->
     <div class="bg-white dark:bg-gray-800 p-10 rounded-3xl shadow-lg w-full max-w-md space-y-6 transition">
 
-      <h1 class="typewriter-heading font-inter text-2xl font-semibold text-center 
+     <h1 class="typewriter-heading font-inter text-2xl font-semibold text-center 
            text-indigo-500 dark:text-indigo-300">
   Step Into the Footprints
 </h1>
